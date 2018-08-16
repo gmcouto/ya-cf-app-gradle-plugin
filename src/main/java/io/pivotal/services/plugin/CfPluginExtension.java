@@ -77,7 +77,8 @@ public class CfPluginExtension {
         CfService cfService = new CfService();
         this.project.configure(cfService, closure);
         this.cfServices.add(cfService);
-        this.services.add(cfService.getInstanceName());
+        if(!cfService.isRequiresBindParameters())
+            this.services.add(cfService.getInstanceName());
     }
 
     public void cfUserProvidedService(Closure closure) {

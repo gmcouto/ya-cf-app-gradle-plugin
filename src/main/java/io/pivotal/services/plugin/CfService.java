@@ -12,6 +12,7 @@ public class CfService {
     private List<String> tags;
     private Map<String, ? extends Object> parameters;
     private Map<String, ? extends Object> bindParameters;
+    private boolean requiresBindParameters;
 
     public String getName() {
         return name;
@@ -67,5 +68,13 @@ public class CfService {
 
     public void setBindParameters(Map<String, ? extends Object> bindParameters) {
         this.bindParameters = bindParameters;
+    }
+
+    public boolean isRequiresBindParameters() {
+        return requiresBindParameters;
+    }
+
+    public void setRequiresBindParameters(boolean requiresBindParameters) {
+        this.requiresBindParameters = requiresBindParameters;
     }
 }
