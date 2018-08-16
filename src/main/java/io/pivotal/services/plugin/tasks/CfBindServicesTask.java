@@ -12,17 +12,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Responsible for creating the list of services
+ * Responsible for binding a list of services
  *
- * @author Biju Kunjummen
+ * @author Gabriel Couto (@gmcouto)
  */
 public class CfBindServicesTask extends AbstractCfTask {
 
     private CfBindServiceHelper bindServiceHelper = new CfBindServiceHelper();
 
     @TaskAction
-    public void cfCreateServiceTask() {
-
+    public void cfRebindServicesTask() {
         CloudFoundryOperations cfOperations = getCfOperations();
         CfProperties cfProperties = getCfProperties();
 
