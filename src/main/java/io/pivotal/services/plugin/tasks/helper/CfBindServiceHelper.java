@@ -23,7 +23,7 @@ public class CfBindServiceHelper {
 
     public Mono<List<ServiceKey>> bindService(CloudFoundryOperations cfOperations,
         CfProperties cfProperties, CfServiceDetail cfServiceDetail) {
-
+        LOGGER.info("Binding service instance '{}' to application '{}' ", cfServiceDetail.instanceName(), cfProperties.name());
         return cfOperations.services().bind(
             BindServiceInstanceRequest.builder()
                 .applicationName(cfProperties.name())
