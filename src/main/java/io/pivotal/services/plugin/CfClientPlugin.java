@@ -5,6 +5,7 @@ import io.pivotal.services.plugin.tasks.CfAppRestartTask;
 import io.pivotal.services.plugin.tasks.CfAppStartTask;
 import io.pivotal.services.plugin.tasks.CfAppStopTask;
 import io.pivotal.services.plugin.tasks.CfAutoPilotTask;
+import io.pivotal.services.plugin.tasks.CfBindServicesTask;
 import io.pivotal.services.plugin.tasks.CfBlueGreenStage1Task;
 import io.pivotal.services.plugin.tasks.CfBlueGreenStage2Task;
 import io.pivotal.services.plugin.tasks.CfCreateServicesTask;
@@ -39,6 +40,7 @@ public class CfClientPlugin implements Plugin<Project> {
         project.getTasks().create("cf-restage-app", CfRestageTask.class);
         project.getTasks().create("cf-push-autopilot", CfAutoPilotTask.class);
         project.getTasks().create("cf-create-services", CfCreateServicesTask.class);
+        project.getTasks().create("cf-bind-services", CfBindServicesTask.class);
         CfBlueGreenStage1Task bgStage1Task = project.getTasks().create("cf-push-blue-green-1", CfBlueGreenStage1Task.class);
         CfBlueGreenStage2Task bgStage2Task = project.getTasks().create("cf-push-blue-green", CfBlueGreenStage2Task.class);
         bgStage2Task.dependsOn(bgStage1Task);

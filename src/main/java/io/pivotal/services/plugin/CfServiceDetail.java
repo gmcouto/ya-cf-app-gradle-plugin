@@ -25,5 +25,6 @@ public abstract class CfServiceDetail {
     public abstract List<String> tags();
     @Nullable
     public abstract Map<String, Object> parameters();
-
+    @Nullable
+    public abstract Map<String, Object> bindParameters();
 }

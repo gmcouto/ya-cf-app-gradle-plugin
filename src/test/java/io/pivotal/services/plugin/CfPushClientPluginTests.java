@@ -20,7 +20,7 @@ public class CfPushClientPluginTests {
 
     @Test
     public void testValidateCount() {
-        assertThat(this.project.getTasks().size()).isEqualTo(15);
+        assertThat(this.project.getTasks().size()).isEqualTo(16);
         assertThat(this.project.getTasks().getAt("cf-push").getGroup()).isEqualTo("Cloud Foundry");
     }
 

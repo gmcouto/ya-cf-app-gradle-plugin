@@ -132,6 +132,7 @@ public class CfPropertiesMapper {
                     .plan(cfService.getPlan())
                     .parameters(cfService.getParameters())
                     .tags(cfService.getTags())
+                    .bindParameters(cfService.getBindParameters())
                     .completionTimeout((cfService.getCompletionTimeout() != null)
                         ? cfService.getCompletionTimeout()
                         : DefaultProperties.SERVICE_CREATION_COMPLETION_TIMEOUT)

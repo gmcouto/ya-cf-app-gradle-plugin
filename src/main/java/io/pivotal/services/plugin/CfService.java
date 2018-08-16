@@ -11,6 +11,7 @@ public class CfService {
     private Integer completionTimeout;
     private List<String> tags;
     private Map<String, ? extends Object> parameters;
+    private Map<String, ? extends Object> bindParameters;
 
     public String getName() {
         return name;
@@ -58,5 +59,13 @@ public class CfService {
 
     public void setParameters(Map<String, ? extends Object> parameters) {
         this.parameters = parameters;
+    }
+
+    public Map<String, ? extends Object> getBindParameters() {
+        return bindParameters;
+    }
+
+    public void setBindParameters(Map<String, ? extends Object> bindParameters) {
+        this.bindParameters = bindParameters;
     }
 }
