@@ -60,15 +60,17 @@ public class CfBlueGreenStage1DelegateTest {
         Domains mockDomains = mock(Domains.class);
         when(mockDomains.list()).thenReturn(Flux.just(Domain.builder().id("id").name("test.com").status(Status.SHARED).build()));
         when(cfOperations.domains()).thenReturn(mockDomains);
-        CfProperties cfAppProperties = sampleApp();
+        CfProperties cfAppPropertiesGreen = sampleAppGreen();
+        CfProperties cfAppPropertiesBlue = sampleAppBlue();
 
-        when(appDetailsDelegate.getAppDetails(any(CloudFoundryOperations.class), eq(cfAppProperties)))
+        when(appDetailsDelegate.getAppDetails(any(CloudFoundryOperations.class), eq(cfAppPropertiesGreen)))
             .thenReturn(Mono.just(Optional.of(ApplicationDetail.builder().
-                name("test").instances(10)
-                .runningInstances(2)
+                name(cfAppPropertiesBlue.name())
+                .runningInstances(cfAppPropertiesBlue.instances())
+                .instances(cfAppPropertiesBlue.instances())
+                .diskQuota(cfAppPropertiesBlue.diskQuota())
+                .memoryLimit(cfAppPropertiesBlue.memory())
                 .stack("stack")
-                .diskQuota(500)
-                .memoryLimit(100)
                 .requestedState("start")
                 .id("id")
                 .build())));
@@ -76,13 +78,14 @@ public class CfBlueGreenStage1DelegateTest {
         Map<String, String> existingEnvironment = new HashMap<>();
         existingEnvironment.put("userProp", "value");
 
-        when(appEnvDelegate.getAppEnv(any(CloudFoundryOperations.class), eq(cfAppProperties)))
+        when(appEnvDelegate.getAppEnv(any(CloudFoundryOperations.class), eq(cfAppPropertiesGreen)))
             .thenReturn(Mono.just(Optional.of(ApplicationEnvironments.builder().userProvided(existingEnvironment).build())));
 
         when(pushDelegate.push(any(CloudFoundryOperations.class), any(CfProperties.class)))
             .thenReturn(Mono.empty());
 
-        Mono<Void> resultMono = this.blueGreenStage1Delegate.runStage1(project, cfOperations, cfAppProperties);
+
+        Mono<Void> resultMono = this.blueGreenStage1Delegate.runStage1(project, cfOperations, cfAppPropertiesGreen);
         StepVerifier.create(resultMono)
             .expectComplete()
             .verify(Duration.ofMillis(2000L));
@@ -91,17 +94,15 @@ public class CfBlueGreenStage1DelegateTest {
 
         verify(this.pushDelegate).push(any(CloudFoundryOperations.class), argumentCaptor.capture());
 
-        Map<String, String> expectedEnvironment = getUserEnvironment();
-
         CfProperties captured = argumentCaptor.getValue();
         assertThat(captured.name()).isEqualTo("test-green");
         assertThat(captured.host()).isEqualTo(null);
         assertThat(captured.domain()).isEqualTo(null);
         assertThat(captured.routes().get(0)).startsWith("route-green");
-        assertThat(captured.instances()).isEqualTo(10);
-        assertThat(captured.diskQuota()).isEqualTo(500);
-        assertThat(captured.memory()).isEqualTo(100);
-        assertThat(captured.environment()).isEqualTo(expectedEnvironment);
+        assertThat(captured.instances()).isEqualTo(3);
+        assertThat(captured.diskQuota()).isEqualTo(10);
+        assertThat(captured.memory()).isEqualTo(2);
+        assertThat(captured.environment()).isEqualTo(cfAppPropertiesGreen.environment());
     }
 
 
@@ -113,18 +114,18 @@ public class CfBlueGreenStage1DelegateTest {
         when(mockDomains.list()).thenReturn(Flux.just(Domain.builder().id("id").name("test.com").status(Status.SHARED).build()));
         when(cfOperations.domains()).thenReturn(mockDomains);
 
-        CfProperties cfAppProperties = sampleApp();
+        CfProperties cfAppPropertiesGreen = sampleAppGreen();
 
-        when(appDetailsDelegate.getAppDetails(any(CloudFoundryOperations.class), eq(cfAppProperties)))
+        when(appDetailsDelegate.getAppDetails(any(CloudFoundryOperations.class), eq(cfAppPropertiesGreen)))
             .thenReturn(Mono.just(Optional.empty()));
 
-        when(appEnvDelegate.getAppEnv(any(CloudFoundryOperations.class), eq(cfAppProperties)))
+        when(appEnvDelegate.getAppEnv(any(CloudFoundryOperations.class), eq(cfAppPropertiesGreen)))
             .thenReturn(Mono.just(Optional.empty()));
 
         when(pushDelegate.push(any(CloudFoundryOperations.class), any(CfProperties.class)))
             .thenReturn(Mono.empty());
 
-        Mono<Void> resultMono = this.blueGreenStage1Delegate.runStage1(project, cfOperations, cfAppProperties);
+        Mono<Void> resultMono = this.blueGreenStage1Delegate.runStage1(project, cfOperations, cfAppPropertiesGreen);
         StepVerifier.create(resultMono)
             .expectComplete()
             .verify(Duration.ofMillis(2000L));
@@ -139,14 +140,14 @@ public class CfBlueGreenStage1DelegateTest {
         assertThat(captured.domain()).isEqualTo(null);
         assertThat(captured.routes().get(0)).startsWith("route-green");
 
-        assertThat(captured.instances()).isEqualTo(2);
-        assertThat(captured.diskQuota()).isNull();
-        assertThat(captured.memory()).isNull();
-        assertThat(captured.environment()).isEqualTo(getUserEnvironment());
+        assertThat(captured.instances()).isEqualTo(3);
+        assertThat(captured.diskQuota()).isEqualTo(10);
+        assertThat(captured.memory()).isEqualTo(2);
+        assertThat(captured.environment()).isEqualTo(cfAppPropertiesGreen.environment());
 
     }
 
-    private CfProperties sampleApp() {
+    private CfProperties sampleAppBlue() {
         HashMap<String, String> environment = getUserEnvironment();
         return ImmutableCfProperties.builder()
             .ccHost("cchost")
@@ -155,8 +156,21 @@ public class CfBlueGreenStage1DelegateTest {
             .org("org")
             .space("space")
             .name("test")
+            .memory(1)
+            .diskQuota(5)
             .instances(2)
             .host("route")
+            .environment(environment)
+            .build();
+    }
+
+    private CfProperties sampleAppGreen() {
+        HashMap<String, String> environment = getUserEnvironment();
+        environment.put("newproperty","newvalue");
+        return ImmutableCfProperties.builder().from(sampleAppBlue())
+            .memory(2)
+            .diskQuota(10)
+            .instances(3)
             .environment(environment)
             .build();
     }

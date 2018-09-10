@@ -56,10 +56,7 @@ public class CfBlueGreenStage1Delegate {
                     .withName(greenNameString)
                     .withHost(null)
                     .withDomain(null)
-                    .withRoutes(Collections.singletonList(greenRouteString))
-                    .withInstances(appDetail.getInstances())
-                    .withMemory(appDetail.getMemoryLimit())
-                    .withDiskQuota(appDetail.getDiskQuota());
+                    .withRoutes(Collections.singletonList(greenRouteString));
             }).orElse(ImmutableCfProperties.copyOf(cfProperties)
                 .withName(greenNameString)
                 .withHost(null)
